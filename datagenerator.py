@@ -29,6 +29,7 @@ class Generate:
         self.seqlens = []
         self.data = []
         self.word2index_map = {}
+        self.index2word_map = {}
         self.index = 0
         self.labels = [1] * dataset_size + [0] * dataset_size
 
@@ -113,20 +114,4 @@ class Generate:
         Map index to words
         :return:
         """
-        index2word_map = {index: word for word, index in self.word2index_map.items()}
-        vocabulary_size = len(index2word_map)
-        return index2word_map, vocabulary_size
-
-    def getnextbatch(self, batchsize, dataX, dataY, data_seqlens):
-        """
-        A function that generates batches of sentences. Each sentence in a batch is simply a
-        list of integer IDs corresponding to words.
-        """
-        indices = list(range(len(dataX)))
-        np.random.shuffle(indices)
-        batch = indices[:batchsize]
-        x = [[self.word2index_map[word] for word in dataX[i].lower().split()]
-             for i in batch]
-        y = [dataY[i] for i in batch]
-        seqlens = [data_seqlens[i] for i in batch]
-        return x, y, seqlens
+        self.index2word_map = {index: word for word, index in self.word2index_map.items()}

@@ -116,3 +116,41 @@ gendata.createlabels()
 splitteddataset = gendata.splitdataset()
 trainX, trainY, testX, testY, trainSeq, testSeq = splitteddataset
 ```
+
+#### Create Placeholders
+```python
+import tensorflow as tf
+# Create placeholders for dataset
+_inputs = tf.placeholder(tf.int32, shape=[BATCHSIZE, TIMESTEPS])
+_labels = tf.placeholder(tf.float32, shape=[BATCHSIZE, NUMCLASSES])
+
+# sequencelens for dynamic calculation
+_seqlens = tf.placeholder(tf.int32, shape=[BATCHSIZE])
+```
+
+### Supervised Word Embeddings
+Our text data is now encoded as lists of word _IDs_—each sentence is a sequence of integers corresponding to words. This 
+type of atomic representation, where each word is represented with an ID, is not scalable for training deep learning models 
+with large vocabularies that occur in real problems. We could end up with millions of such word IDs, each encoded in 
+one-hot (binary) categorical form, leading to great data sparsity and computational issues. 
+
+A powerful approach to work around this issue is to use word embeddings. The embedding is, in a nutshell, simply a mapping 
+from high-dimensional one-hot vectors encoding words to lower-dimensional dense vectors. So, for example, if our vocabulary 
+has size 100,000, each word in one-hot representation would be of the same size. The corresponding word vector—or word 
+embedding—would be of size 300, say. The high-dimensional one-hot vectors are thus “embedded” into a continuous vector 
+space with a much lower dimensionality.
+
+It is helpful to think of word embeddings as basic hash tables or lookup tables, mapping words to their dense vector values. 
+These vectors are optimized as part of the training process. Previously, we gave each word an integer index, and sentences 
+are then represented as sequences of these indices. Now, to obtain a word’s vector, we use the built-in _tf.nn.embedding_lookup()_ 
+function, which efficiently retrieves the vectors for each word in a given sequence of word indices:
+
+```python
+with tf.name_scope('embeddings'):
+    embeddings = tf.Variable(tf.random_normal([len(gendata.index2word_map),
+                                               EMBEDDINGDIMENSION], -1.0, 1.0),
+                             name='embedding')
+    embed = tf.nn.embedding_lookup(embeddings, _inputs)
+```
+
+
